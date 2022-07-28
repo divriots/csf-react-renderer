@@ -1,6 +1,6 @@
 {
   "name": "@divriots/csf-react-renderer",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "scripts": {
     "serve": "npx cso-cli@latest serve dmwkQBIkPj0U547ZYlDH --open"
   },
