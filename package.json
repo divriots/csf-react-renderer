@@ -5,6 +5,10 @@
     "serve": "npx cso-cli@latest serve dmwkQBIkPj0U547ZYlDH --open"
   },
   "main": "./dist/index.js",
+  "exports": {
+    ".": "./dist/index.js",
+    "./client": "./dist/client.js"
+  },
   "dependencies": {
     "@storybook/csf": "0.0.2--canary.87bc651.0"
   },
