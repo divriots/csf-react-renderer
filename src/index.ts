@@ -1,10 +1,19 @@
-import { createElement } from 'react';
-import { createRoot, Root } from 'react-dom/client';
+import React from 'react';
+import ReactDOM, { version as reactDomVersion } from 'react-dom';
 import type { StoryContext } from '@storybook/csf';
 
-export const render = (args, { component }: StoryContext) => {
-  return createElement(component as any, args);
+export const render = (args, { id, component }: StoryContext) => {
+  if (!component) {
+    throw new Error(
+      `Unable to render story ${id} as the component annotation is missing from the default export`
+    );
+  }
+  return React.createElement(component as any, args);
 };
+
+const canUseNewReactRootApi =
+  reactDomVersion && (reactDomVersion.startsWith('18') || reactDomVersion.startsWith('0.0.0'));
+
 
 // A map of all rendered React 18 nodes
 const nodes = new Map<Element, Root>();
@@ -23,10 +32,18 @@ export async function renderToDOM(
   { storyFn, storyContext, unboundStoryFn },
   domElement
 ) {
-  const root = getReactRoot(domElement);
-  root.render(storyFn ? storyFn() : unboundStoryFn(storyContext));
-  return () => {
-    nodes.delete(domElement);
-    root.unmount();
-  };
+  const node = storyFn ? storyFn() : unboundStoryFn(storyContext)
+  if (canUseNewReactRootApi) {
+    const root = getReactRoot(domElement);
+    root.render(node);
+    return () => {
+      nodes.delete(domElement);
+      root.unmount();
+    };
+  } else {
+    await new Promise<void>((resolve) => 
+      ReactDOM.render(node, domElement, () => resolve())
+    );
+    return () => ReactDOM.unmountComponentAtNode(domElement);
+  }
 }
