@@ -1,4 +1,5 @@
 import { createRoot, Root } from 'react-dom/client';
+import React from 'react';
 export {render} from './render';
 
 // A map of all rendered React 18 nodes
@@ -14,11 +15,14 @@ const getReactRoot = (el: Element): Root => {
 };
 
 export async function renderToDOM(
-  { storyFn },
+  {
+    storyContext,
+    unboundStoryFn,
+  },
   domElement
 ) {
   const root = getReactRoot(domElement);
-  root.render(storyFn());
+  root.render(React.createElement(unboundStoryFn, storyContext));
   return () => {
     nodes.delete(domElement);
     root.unmount();
